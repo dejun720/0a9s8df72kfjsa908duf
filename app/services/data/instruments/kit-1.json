@@ -1,0 +1,12 @@
+{
+  "name": "default",
+  "instruments": [
+    { "name" : "kick",
+      "file" : "kick.mp3" },
+    { "name" : "snare",
+      "file" : "snare.mp3" },
+    { "name" : "hi-hat",
+      "description" : "open",
+      "file" : "hihat.mp3" }
+  ]
+}

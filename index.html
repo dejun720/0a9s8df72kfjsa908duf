@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="AngularDrumMachine">
+<head>
+  <meta charset="utf-8" />
+  <title>The Groove Calibrator - by BassGuitarTips</title>
+
+  
+  	
+	<link href="assets/css/styles.css" rel="stylesheet" type="text/css">
+	<link href="assets/css/main.css" rel="stylesheet" type="text/css">
+	<link href="assets/css/bootstrap/bootstrap.css" rel="stylesheet" type="text/css">
+	<link href="assets/css/bootstrap/bootstrap-theme.css" rel="stylesheet" type="text/css">
+	
+	<script type="text/javascript" src="assets/js/jquery-2.2.3.min.js" ></script>
+	<script type="text/javascript" src="assets/js/bootstrap/bootstrap.js"></script>
+  	<script src="assets/js/angular.min.js"></script>
+  	<script src="assets/js/angular_drums.min.js"></script>
+	
+</head>
+<body class="bg-black" ng-view>	
+
+	<div class="container drum-widget" ng-controller="DrumMachineCtrl as dm">			
+		<div class="row">
+			<div class="col-sm-12">
+				<img width="100%" src="assets/images/bg_top.png"/>
+			</div>
+		</div>
+		<div class="row" >
+			<div class="col-sm-12"><p class="middleSpace"></p></div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="middle-part">					
+		         	<table class="table drum-table drum-table-responsive table-responsive no-border">
+	                	<tbody>
+			                <tr>
+		                 		<th style="vertical-align: middle;">
+				                  	<div class="input-group">
+					                      <div class="input-group-btn">
+					                        <button type="button" class="btn btn-drum-search" ng-click="getGrooveName()"><img ng-src="assets/images/Searchicon.png"/></button>
+					                      </div>                     
+					                      <select class="form-control" ng-model="selGrooveName" ng-change="loadGroove()">
+					                          <option data-ng-repeat="filename in filenamearr" ng-click="loadGroove(filename.name)">{{filename.name}}</option>
+					                         </select>
+					                    </div>
+			              		</th>
+			              		<th width="65%">
+			              			<table class="table mid-table">
+			              				<tr >
+			              					<td data-ng-repeat="i in [] | range:machine.gridLength()"><span class="my-instrument">{{getTitle($index)}}</span></td>
+											
+			              				</tr>
+			              			</table>
+			              		</th>
+			                  
+			                </tr>
+			                <tr class="bordered-top" ng-repeat="row in machine.rows()">
+			                	<th >
+			                		<div class="header-subitem">
+				                		<div width="100%" class="header-subcontainer">
+					                		<div align="right"><img ng-src="assets/images/{{row.getInstrument().getName()}}.png"></div>
+			                				<div class="header-sub-text"><span> {{row.getInstrument().getName()}} </span></div>
+			                				<div><img ng-src="assets/images/arrowright.png"></div>
+				                		</div>				        
+			                		</div>          	
+			              		</th>
+								<th width="65%">
+									<table class="table node-table table-responsive">
+			              				<tr>
+			              					<td data-ng-repeat="beat in row.getBeats()" class="pointer">
+			              						<img ng-src="assets/images/item_{{beat.isActive()}}.png" ng-click="beat.toggle()">
+		              						</td>
+			              				</tr>
+			              			</table>
+								</th>	                  
+			                </tr>
+			                
+	              </tbody></table>
+				</div>
+			</div>
+		</div>
+		<div class="row" >
+			<div class="col-sm-12"><p class="middleSpace"></p></div>
+		</div>
+		<div class="row"></div>
+		<div class="row control-part bordered-bottom">
+			<div align="center" class="col-lg-4 col-sm-12 container controlbtn">
+				<div class="row" >
+					<div class="col-sm-0 col-lg-1 col-md-1"></div>
+					<div class="col-sm-4 col-lg-3 col-md-3 pointer">
+						<img ng-src="assets/images/play.png" ng-click="playLoop()" ng-hide="bplaypause">
+						<img ng-src="assets/images/pause.png" ng-click="stopLoop()" ng-hide="!bplaypause">
+					</div>
+
+					<div class="col-sm-4 col-lg-3 col-md-3 pointer">
+						<img ng-src="assets/images/metro_{{bMetronome}}.png" ng-click="setMetronome()">
+					</div>
+					<div class="col-sm-4 col-lg-3 col-md-3 pointer">
+						<img ng-src="assets/images/invert{{bInvert}}.png" ng-click="invertInfo()" ng-mousedown="invertDown()" ng-mouseup="invertUp()">
+					</div>
+					<div class="col-sm-0 col-lg-1 col-md-1 divideline">
+						<img ng-src="assets/images/vline.png">
+					</div>
+				</div>
+
+			</div>
+
+			<div align="center" class="col-lg-8 col-sm-12 controllabel" ng-mousemove="endTimer()" id = "valueControl"> 
+				<div class="row" >
+					<!-- <div class="col-sm-1 col-lg-0 col-md-0" > -->
+					<div class="col-sm-3 col-lg-3 col-md-3">
+						<div class="row">
+							<table>
+								<tr>
+									<td class="pointer">
+										
+										<img ng-src ="assets/images/larrow{{bDisplaceLarrow}}.png" ng-mousedown="displaceLarrowDown()" ng-mouseup="displaceLarrowUp()" id="ldisplacearrow"> 
+									</td>
+									<td class = "image pointer">
+										<input id="displaceEdit" type="text" ng-change="updateDisplace()" ng-blur="CloseDisplaceEdit()" ng-model="displace" style="width:55px;display:none;"> 
+					                	<span id="displace" ng-click="editDisplace()">{{displace}}</span>
+					                </td>
+					                <td class="pointer">
+					                	
+					                	<img ng-src ="assets/images/rarrow{{bDisplaceRarrow}}.png" ng-mousedown="displaceRarrowDown()" ng-mouseup="displaceRarrowUp()" id="rdisplacearrow"> 
+									</td>
+								</tr>
+								<tr>
+									<td class="pointer" colspan="3" align="center">
+										<img ng-src="assets/images/small_{{bDisplace}}.png" ng-click="bDisplaceSet()"> <span >Displace</span>		
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="col-sm-3 col-lg-3 col-md-3">
+						<div class="row"> 
+							<table>
+								<tr>
+									<td class="pointer"> 
+										<img ng-src ="assets/images/larrow{{bAutomuteLarrow}}.png" ng-mousedown="automuteLarrowDown()" ng-mouseup="automuteLarrowUp()" id="lautomutearrow">
+									</td>
+									<td class = "image pointer">
+										<input id="automuteEdit" type="text" ng-change="updateAutomute()" ng-blur="CloseAutomuteEdit()" ng-model="automute"  style="width:55px;display:none;"> 
+		                				<span id="automute" ng-click="editAutomute()">{{automute}}</span>
+		                			</td>
+		                			<td class="pointer">
+					                	
+					                	<img ng-src ="assets/images/rarrow{{bAutomuteRarrow}}.png" ng-mousedown="automuteRarrowDown()" ng-mouseup="automuteRarrowUp()" id="rautomutearrow">
+					                </td>
+					            </tr>
+					            <tr>
+						            <td class="pointer"  colspan="3" align="center">
+						            	<img ng-src="assets/images/small_{{bAutomute}}.png" ng-click="bAutomuteSet()">Auto Mute
+						            </td>
+					            </tr>
+					        </table>
+						</div>
+					</div>
+					<div class="col-sm-3 col-lg-3 col-md-3">
+						<div class="row">
+							<table>
+								<tr>
+									<td class="pointer"> 
+										<img ng-src ="assets/images/larrow{{bVolumeLarrow}}.png" ng-mousedown="volumeLarrowDown()" ng-mouseup="volumeLarrowUp()" id = "lvolumearrow"
+										>
+									</td>
+									<td class="image pointer">
+										<input id="volumeEdit" type="text" ng-change="updateVolume()" ng-blur="CloseVolumeEdit()" ng-model="volume" style="width:55px;display:none;"> 
+			                			<span id="volume" ng-class=" {{displace}}>9 ? 'two-digits' : 'one-digit'" ng-click="EidtVolume()">{{volume}}</span>
+			                		</td>
+			                		<td class="pointer">
+			                			<img ng-src ="assets/images/rarrow{{bVolumeRarrow}}.png" ng-mousedown="volumeRarrowDown()" ng-mouseup="volumeRarrowUp()" id = "rvolumearrow">
+			                		</td>
+			                	</tr>
+			                	<tr>
+			                		<td colspan="3" align="center">Volume</td>
+			                	</tr>
+			                </table>
+			            </div>
+					</div>
+					<div class="col-sm-3 col-lg-3 col-md-3">
+						<div class="row">
+							<table>
+								<tr>
+									<td class="pointer">
+										<img ng-src ="assets/images/larrow{{bTempoLarrow}}.png" ng-mousedown="tempoLarrowDown()" ng-mouseup="tempoLarrowUp()" id="ltempoarrow">
+									</td>
+									<td class="image pointer">
+									  	<input id="bpmEdit" type="text" ng-change="updateTempo()"  ng-blur="CloseEdit()" ng-model="tempo" style="width:55px;display:none;"> 
+						                <span id="bpm" ng-class=" (displace>9) ? 'two-digits' : 'one-digit'" ng-click="EditBPM()">{{tempo}}</span>
+						            </td>
+						            <td class="pointer">
+						                <img ng-src ="assets/images/rarrow{{bTempoRarrow}}.png" ng-mousedown="tempoRarrowDown()" ng-mouseup="tempoRarrowUp()" id="rtempoarrow">
+									</td>
+								</tr>
+								<tr>
+									<td colspan="3" align="center">Tempo</td>
+								</tr>
+							</table>
+			            </div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
